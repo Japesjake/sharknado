@@ -10,12 +10,12 @@ FPS = 60
 
 shark_hitbox = pg.Rect(400,400,50,50)
 shark_speed = 5
+hitboxes = []
+hitboxes.append(pg.Rect(100,100,50,50))
 
 running = True
 while running:
     keys = pg.key.get_pressed()
-
-    # 3. Update position based on keys
     if keys[pg.K_LEFT]:
         shark_hitbox.x -= shark_speed
     if keys[pg.K_RIGHT]:
@@ -25,21 +25,14 @@ while running:
     if keys[pg.K_DOWN]:
         shark_hitbox.y += shark_speed
 
-    
-    
-    
     for event in pg.event.get():
         if event.type == pg.QUIT:
             running = False
-        elif event.type == pg.KEYDOWN:
-            if event.key == pg.K_LEFT:
-                shark_hitbox.x -= 10
-    
-
-
 
     screen.fill((30, 30, 30))
     pg.draw.rect(screen,(200,200,200),shark_hitbox)
+    for hitbox in hitboxes:
+        pg.draw.rect(screen, (255,0,0), hitbox)
     pg.display.flip()
     clock.tick(FPS)
 
