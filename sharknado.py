@@ -7,51 +7,52 @@ screen = pg.display.set_mode((screen_width, screen_height))
 pg.display.set_caption("Sharknado")
 clock = pg.time.Clock()
 FPS = 60
+SPAWN_PERSON_EVENT = pg.USEREVENT + 1
+pg.time.set_timer(SPAWN_PERSON_EVENT, 10000)
 
 shark_hitbox = pg.Rect(400,400,50,50)
-shark_speed = 10
-tornadoes = []
-people = []
-spawn_rate = 1
-t = 0
 
-def draw_hitboxes(hitboxes):
-    for hitbox in hitboxes:
-        pg.draw.rect(screen, (255,0,0), hitbox)
+class Hitbox(pg.sprite.Sprite):
+    def __init__(self,width,height,color,x,y,speed):
+        super().__init__()
+        self.image = pg.Surface([width,height])
+        self.image.fill(color)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.speed = speed
 
-def detect_collision(hitboxes,hitbox):
-    i = hitbox.collidelist(hitboxes)
-    if i != -1: hitboxes.pop(i)
+class Shark(Hitbox):
+    def __init__(self,width,height,color,x,y,speed):
+        super().__init__(width,height,color,x,y,speed)
+    def update(self):
+        keys = pg.key.get_pressed()
+        if keys[pg.K_LEFT]:
+            shark_hitbox.rect.x -= self.speed
+        if keys[pg.K_RIGHT]:
+            shark_hitbox.rect.x += self.speed
+        if keys[pg.K_UP]:
+            shark_hitbox.rect.y -= self.speed
+        if keys[pg.K_DOWN]:
+            shark_hitbox.rect.y += self.speed
 
+class Person(Hitbox):
+    def __init__(self,width,height,color,x,y,speed):
+        super().__init__(width,height,color,x,y,speed)
+    def update(self):
+        self.rect.y += 1
+
+shark = pg.sprite.Group()
+shark_hitbox = Shark(50,50,(255,0,0),400,400,10)
+shark.add(shark_hitbox)
 
 running = True
 while running:
-
-
-    screen.fill((30, 30, 30))
-    pg.draw.rect(screen,(200,200,200),shark_hitbox)
-
-    detect_collision(tornadoes,shark_hitbox)
-    detect_collision(people,shark_hitbox)
-    draw_hitboxes(tornadoes)
-    draw_hitboxes(people)
+    shark.update()
+    screen.fill((0,0,0))
+    shark.draw(screen)
     
-    
-    t += spawn_rate
-    if t > 100: 
-        tornadoes.append(pg.Rect(rand.randint(1,1000),rand.randint(1,1000),50,50))
-        people.append(pg.Rect(rand.randint(1,1000),0,50,50))
 
-        t = 0
-    keys = pg.key.get_pressed()
-    if keys[pg.K_LEFT]:
-        shark_hitbox.x -= shark_speed
-    if keys[pg.K_RIGHT]:
-        shark_hitbox.x += shark_speed
-    if keys[pg.K_UP]:
-        shark_hitbox.y -= shark_speed
-    if keys[pg.K_DOWN]:
-        shark_hitbox.y += shark_speed
     for event in pg.event.get():
         if event.type == pg.QUIT:
             running = False    
